@@ -24,6 +24,8 @@ gem 'config'
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', require: false
 
+gem 'state_machines-activerecord'
+
 group :development, :test do
   # testing framework
   gem 'rspec-rails'

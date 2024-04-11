@@ -21,5 +21,26 @@ class Turn < ApplicationRecord
   belongs_to :player
   has_many :rolls, dependent: :destroy
 
-  enum status: { pending: 'pending', playing: 'playing', pending_scoring: 'pending_scoring', compleated: 'compleated' }
+  state_machine :status, initial: :pending do
+    state :playing
+    state :pending_scoring
+    state :canceled
+    state :completed
+
+    event :cancel do
+      transition %i[pending playing pending_scoring] => :canceled
+    end
+
+    event :playing do
+      transition pending: :playing
+    end
+
+    event :pending_scoring do
+      transition playing: :pending_scoring
+    end
+
+    event :completed do
+      transition %i[playing pending_scoring] => :completed
+    end
+  end
 end
