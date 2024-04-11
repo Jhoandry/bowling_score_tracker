@@ -10,17 +10,20 @@ RSpec.describe GamesController do
         }
       end
 
-      let(:games) { Game.count }
-      let(:players) { Player.count }
+      it do
+        expect(create).to have_http_status(:ok)
+      end
 
-      it { is_expected.to have_http_status :ok }
-
-      it 'creates a new game' do
+      it 'is expected to creates a new game' do
         expect { create }.to change(Game, :count).by(1)
       end
 
-      it 'creates new players' do
+      it 'is expected to creates new players' do
         expect { create }.to change(Player, :count).by(3)
+      end
+
+      it 'is expected to initialize new turn by player' do
+        expect { create }.to change(Turn, :count).by(3)
       end
     end
 
@@ -32,8 +35,12 @@ RSpec.describe GamesController do
       end
 
       it do
-        expect { create }.to raise_error(ActionController::ParameterMissing,
-                                         'param is missing or the value is empty: players')
+        expect(create).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'is expected to respond with error message' do
+        create
+        expect(response.body).to include('param is missing or the value is empty: players')
       end
     end
   end
