@@ -25,7 +25,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_11_115833) do
   end
 
   create_table "rolls", force: :cascade do |t|
-    t.string "roll_number", default: "first", null: false
+    t.integer "chance", default: 1, null: false
     t.integer "pins_knocked_down", default: 0, null: false
     t.string "type", default: "normal", null: false
     t.bigint "turn_id", null: false
