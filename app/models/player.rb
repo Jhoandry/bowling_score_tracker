@@ -6,4 +6,5 @@
 #  name :string           default("Default player"), not null
 #
 class Player < ApplicationRecord
+  has_many :turns, dependent: :destroy
 end

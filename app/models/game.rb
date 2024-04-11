@@ -8,4 +8,6 @@
 #  updated_at :datetime         not null
 #
 class Game < ApplicationRecord
+  has_many :turns, dependent: :destroy
+  has_many :players, through: :turns
 end

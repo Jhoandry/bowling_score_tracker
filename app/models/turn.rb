@@ -16,4 +16,7 @@
 #  index_turns_on_player_id  (player_id)
 #
 class Turn < ApplicationRecord
+  belongs_to :game
+  belongs_to :player
+  has_many :rolls, dependent: :destroy
 end
