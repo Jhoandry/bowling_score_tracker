@@ -4,7 +4,8 @@
 #
 #  id          :bigint           not null, primary key
 #  score       :integer
-#  turn_number :integer          not null
+#  status      :string           default("pending"), not null
+#  turn_number :integer          default(1), not null
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
 #  game_id     :bigint           not null
@@ -19,4 +20,6 @@ class Turn < ApplicationRecord
   belongs_to :game
   belongs_to :player
   has_many :rolls, dependent: :destroy
+
+  enum status: { pending: 'pending', playing: 'playing', pending_scoring: 'pending_scoring', compleated: 'compleated' }
 end

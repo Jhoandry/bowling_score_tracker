@@ -35,8 +35,9 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_11_115833) do
   end
 
   create_table "turns", force: :cascade do |t|
-    t.integer "turn_number", null: false
+    t.integer "turn_number", default: 1, null: false
     t.integer "score"
+    t.string "status", default: "pending", null: false
     t.bigint "player_id", null: false
     t.bigint "game_id", null: false
     t.datetime "created_at", null: false
