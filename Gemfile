@@ -41,11 +41,12 @@ end
 
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
-  gem 'web-console'
   gem 'annotate'
+  gem 'web-console'
 end
 
 group :test do
+  gem 'database_cleaner'
   # Library for stubbing and setting expectations on HTTP requests in Ruby
   gem 'webmock'
 end
