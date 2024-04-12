@@ -1,5 +1,5 @@
 # In charge of new Game creations and give the score
-class GamesController < ApplicationController
+class GamesController < ActionController::API
   def create
     start_game
     render json: { game: GameSerializer.new(@game).attributes }, status: :ok
