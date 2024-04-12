@@ -2,7 +2,7 @@
 class GamesController < ActionController::API
   def create
     start_game
-    render json: { game: GameSerializer.new(@game).attributes }, status: :ok
+    render json: GameSerializer.new(@game).attributes, status: :ok
   rescue ActionController::ParameterMissing => e
     render status: :unprocessable_entity, json: { message: e.message }
   end

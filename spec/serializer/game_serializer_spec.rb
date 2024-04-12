@@ -16,13 +16,13 @@ RSpec.describe GameSerializer do
           { id: firts_player.id,
             name: firts_player.name,
             turns: [{ number: firts_player_turn.turn_number,
-                      score: firts_player_turn.score,
+                      score: 0,
                       status: firts_player_turn.status }],
             total_score: 0 },
           { id: second_player.id,
             name: second_player.name,
             turns: [{ number: second_player_turn.turn_number,
-                      score: second_player_turn.score,
+                      score: 0,
                       status: second_player_turn.status }],
             total_score: 0 }
         ]
