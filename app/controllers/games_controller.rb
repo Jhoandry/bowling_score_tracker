@@ -2,7 +2,7 @@
 class GamesController < ApplicationController
   def create
     start_game
-    render json: { game: serialize_game }, status: :ok
+    render json: { game: GameSerializer.new(@game).attributes }, status: :ok
   rescue ActionController::ParameterMissing => e
     render status: :unprocessable_entity, json: { message: e.message }
   end
@@ -12,6 +12,11 @@ class GamesController < ApplicationController
   def start_game
     create_game
     create_players
+    start_first_turn
+  end
+
+  def start_first_turn
+    @game.turns.first.playing!
   end
 
   def create_players
@@ -35,17 +40,5 @@ class GamesController < ApplicationController
 
   def permitted_params
     params.permit(:location, players: [])
-  end
-
-  def serialize_game
-    {
-      id: @game.id,
-      location: @game.location,
-      players: @game.players.map do |player|
-        { id: player.id,
-          name: player.name,
-          turns: player.turns.map { |turn| { number: turn.turn_number, score: turn.score, status: turn.status } } }
-      end
-    }
   end
 end
