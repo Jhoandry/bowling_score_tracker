@@ -44,4 +44,24 @@ RSpec.describe GamesController do
       end
     end
   end
+
+  describe '#index' do
+    subject(:index) { get :index, format: :json, params: { id: game_identifier } }
+
+    context 'when game exist' do
+      let(:game_identifier) { Game.create.id }
+
+      it do
+        expect(index).to have_http_status(:ok)
+      end
+    end
+
+    context 'when game does not exist' do
+      let(:game_identifier) { 98 }
+
+      it do
+        expect(index).to have_http_status(:unprocessable_entity)
+      end
+    end
+  end
 end

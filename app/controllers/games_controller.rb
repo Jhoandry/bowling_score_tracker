@@ -7,7 +7,17 @@ class GamesController < ActionController::API
     render status: :unprocessable_entity, json: { message: e.message }
   end
 
+  def index
+    render json: GameSerializer.new(game_by_identifier).attributes, status: :ok
+  rescue StandardError => e
+    render status: :unprocessable_entity, json: { message: e.message }
+  end
+
   private
+
+  def game_by_identifier
+    Game.find(game_identifier)
+  end
 
   def start_game
     create_game
@@ -36,6 +46,10 @@ class GamesController < ActionController::API
 
   def player_names
     params.required(:players)
+  end
+
+  def game_identifier
+    params.required(:id)
   end
 
   def permitted_params
