@@ -2,14 +2,15 @@
 #
 # Table name: turns
 #
-#  id          :bigint           not null, primary key
-#  score       :integer
-#  status      :string           default("pending"), not null
-#  turn_number :integer          default(1), not null
-#  created_at  :datetime         not null
-#  updated_at  :datetime         not null
-#  game_id     :bigint           not null
-#  player_id   :bigint           not null
+#  id           :bigint           not null, primary key
+#  rolls_detail :json
+#  score        :integer
+#  status       :string           default("pending"), not null
+#  turn_number  :integer          default(1), not null
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
+#  game_id      :bigint           not null
+#  player_id    :bigint           not null
 #
 # Indexes
 #
@@ -19,7 +20,6 @@
 class Turn < ApplicationRecord
   belongs_to :game
   belongs_to :player
-  has_many :rolls, dependent: :destroy
 
   state_machine :status, initial: :pending do
     state :playing
