@@ -1,7 +1,7 @@
 RSpec.describe TurnsController do
   let(:game) { Game.create }
   let(:firts_player) { Player.create(name: 'test player name') }
-  let!(:firts_player_turn) { Turn.create(player: firts_player, game:) }
+  let!(:firts_player_turn) { Turn.create(player: firts_player, game:, status: :playing) }
 
   describe '#create' do
     subject(:create) { post :create, format: :json, params: score_body }
@@ -46,6 +46,18 @@ RSpec.describe TurnsController do
         firts_player_turn.reload
         expect(firts_player_turn.rolls_detail.deep_symbolize_keys).to include(expected_rolls_detail)
       end
+
+      it 'starts new turn' do
+        create
+        firts_player.reload
+        expect(firts_player.turns.size).to eq(2)
+      end
+
+      it 'last turn should be pending_scoring' do
+        create
+        firts_player_turn.reload
+        expect(firts_player_turn.status).to eq('pending_scoring')
+      end
     end
 
     context 'when strike turn' do
@@ -61,6 +73,18 @@ RSpec.describe TurnsController do
         create
         firts_player_turn.reload
         expect(firts_player_turn.rolls_detail.deep_symbolize_keys).to include(expected_rolls_detail)
+      end
+
+      it 'starts new turn' do
+        create
+        firts_player.reload
+        expect(firts_player.turns.size).to eq(2)
+      end
+
+      it 'last turn should be pending_scoring' do
+        create
+        firts_player_turn.reload
+        expect(firts_player_turn.status).to eq('pending_scoring')
       end
     end
 
