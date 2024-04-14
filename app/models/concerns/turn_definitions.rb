@@ -25,4 +25,22 @@ module TurnDefinitions
 
     roll_detail
   end
+
+  def can_completed?(rolls_detail)
+    normal_shot?(rolls_detail) && rolls_detail['shots'].size == 2
+  end
+
+  def must_pending_score?(rolls_detail)
+    !normal_shot?(rolls_detail)
+  end
+
+  def total_socore(rolls_detail)
+    rolls_detail['shots'].sum if normal_shot?(rolls_detail)
+  end
+
+  private
+
+  def normal_shot?(rolls_detail)
+    rolls_detail['roll_type'] == 'normal'
+  end
 end

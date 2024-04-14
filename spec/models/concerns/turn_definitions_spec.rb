@@ -118,4 +118,79 @@ RSpec.describe TurnDefinitions do
       end
     end
   end
+
+  describe 'normal turn definitions' do
+    let(:rolls_detail) do
+      {
+        'roll_type' => 'normal',
+        'shots' => shots
+      }
+    end
+
+    context 'with both shots' do
+      let(:shots) { [3, 6] }
+
+      it 'cans completed' do
+        expect(definitions).to be_can_completed(rolls_detail)
+      end
+
+      it 'not pending_scoring' do
+        expect(definitions).not_to be_must_pending_score(rolls_detail)
+      end
+
+      it 'expected score' do
+        expect(definitions.total_socore(rolls_detail)).to eq(shots.sum)
+      end
+    end
+
+    context 'with just one shot' do
+      let(:shots) { [5] }
+
+      it 'cans completed' do
+        expect(definitions).not_to be_can_completed(rolls_detail)
+      end
+
+      it 'not pending_scoring' do
+        expect(definitions).not_to be_must_pending_score(rolls_detail)
+      end
+    end
+  end
+
+  describe 'spare turn definitions' do
+    let(:rolls_detail) do
+      {
+        'roll_type' => 'spare',
+        'shots' => [4, 6]
+      }
+    end
+
+    context 'with normal two shots' do
+      it 'cans completed' do
+        expect(definitions).not_to be_can_completed(rolls_detail)
+      end
+
+      it 'not pending_scoring' do
+        expect(definitions).to be_must_pending_score(rolls_detail)
+      end
+    end
+  end
+
+  describe 'strike turn definitions' do
+    let(:rolls_detail) do
+      {
+        'roll_type' => 'strike',
+        'shots' => [10]
+      }
+    end
+
+    context 'with normal two shots' do
+      it 'cans completed' do
+        expect(definitions).not_to be_can_completed(rolls_detail)
+      end
+
+      it 'not pending_scoring' do
+        expect(definitions).to be_must_pending_score(rolls_detail)
+      end
+    end
+  end
 end
