@@ -16,6 +16,7 @@
 #
 #  index_turns_on_game_id    (game_id)
 #  index_turns_on_player_id  (player_id)
+#  index_turns_on_status     (status)
 #
 class Turn < ApplicationRecord
   belongs_to :game
@@ -43,4 +44,6 @@ class Turn < ApplicationRecord
       transition %i[playing pending_scoring] => :completed
     end
   end
+
+  scope :pending, -> { where(status: :pending) }
 end
