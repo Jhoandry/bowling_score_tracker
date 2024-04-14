@@ -69,8 +69,7 @@ RSpec.describe TurnDefinitions do
       end
 
       before do
-        turn.rolls_detail = first_shot_roll_detail
-        turn.save!
+        turn.update_column(:rolls_detail, first_shot_roll_detail)
       end
 
       it do
@@ -89,8 +88,7 @@ RSpec.describe TurnDefinitions do
       end
 
       before do
-        turn.rolls_detail = first_shot_roll_detail
-        turn.save!
+        turn.update_column(:rolls_detail, first_shot_roll_detail)
       end
 
       it do
@@ -109,6 +107,14 @@ RSpec.describe TurnDefinitions do
 
       it do
         expect(roll_detail).to include(expected_roll_details)
+      end
+    end
+
+    context 'when invalid pins_knocked_down' do
+      let(:pins_knocked_down) { 11 }
+
+      it do
+        expect { roll_detail }.to raise_error(ArgumentError, 'Invalid number of pins knocked down')
       end
     end
   end

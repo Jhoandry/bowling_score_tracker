@@ -17,7 +17,7 @@ module TurnDefinitions
     shots = roll_detail['shots'] || []
 
     if pins_knocked_down > MAX_PINS_KNOCKED_DOWN || (shots.sum + pins_knocked_down) > MAX_PINS_KNOCKED_DOWN
-      raise StandardError, 'Invalid number of pins knocked down'
+      raise ArgumentError, 'Invalid number of pins knocked down'
     end
 
     roll_detail['shots'] = shots << pins_knocked_down
