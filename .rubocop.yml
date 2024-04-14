@@ -228,4 +228,6 @@ RSpec/SubjectDeclaration: # new in 2.5
   Enabled: true
 RSpec/VerifiedDoubleReference: # new in 2.10.0
   Enabled: true
+RSpec/ExampleLength: # Allows 10 lines on specs methods
+  Max: 10
   
