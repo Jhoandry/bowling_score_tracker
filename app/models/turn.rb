@@ -45,8 +45,6 @@ class Turn < ApplicationRecord
     end
   end
 
-  scope :next_player, -> { where(status: :pending).first }
-
   def complete_turn(score)
     update_column(:score, score)
     completed!
