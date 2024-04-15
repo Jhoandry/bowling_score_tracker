@@ -79,21 +79,28 @@ RSpec.describe TurnsIteractor do
       end
     end
 
-    context 'when :normal turn' do
+    context 'when second :normal turn' do
+      let(:second_turn) { Turn.create(player:, game:, status: :playing) }
+      let(:turn_identifier) { second_turn.id }
+      let(:pins_knocked_down) { 3 }
+
       before do
+        second_turn.update_column(:rolls_detail, { roll_type: :normal, shots: [pins_knocked_down, pins_knocked_down] })
         turn.update_column(:rolls_detail, { roll_type: :normal, shots: [pins_knocked_down, pins_knocked_down] })
+        turn.update_column(:score, pins_knocked_down + pins_knocked_down)
+        turn.completed!
       end
 
       it do
         iteractor.send(:define_status_current_turn)
-        turn.reload
-        expect(turn.status).to eq('completed')
+        second_turn.reload
+        expect(second_turn.status).to eq('completed')
       end
 
       it do
         iteractor.send(:define_status_current_turn)
-        turn.reload
-        expect(turn.score).to eq(6)
+        second_turn.reload
+        expect(second_turn.score).to eq(12)
       end
     end
 

@@ -129,6 +129,7 @@ RSpec.describe TurnDefinitions do
 
     context 'with both shots' do
       let(:shots) { [3, 6] }
+      let(:current_score) { 4 }
 
       it 'cans completed' do
         expect(definitions).to be_normal_completed(rolls_detail)
@@ -139,7 +140,7 @@ RSpec.describe TurnDefinitions do
       end
 
       it 'expected score' do
-        expect(definitions.normal_score(rolls_detail)).to eq(shots.sum)
+        expect(definitions.normal_score(rolls_detail, current_score)).to eq(current_score + shots.sum)
       end
     end
 
@@ -171,7 +172,8 @@ RSpec.describe TurnDefinitions do
       }
     end
 
-    let(:score_expected) { 15 }
+    let(:current_score) { 7 }
+    let(:score_expected) { 22 }
 
     it 'cans completed' do
       expect(definitions).not_to be_normal_completed(rolls_detail)
@@ -186,7 +188,7 @@ RSpec.describe TurnDefinitions do
     end
 
     it 'expected score' do
-      expect(definitions.score_pending_turn(rolls_detail, next_rolls_detail)).to eq(score_expected)
+      expect(definitions.score_pending_turn(rolls_detail, next_rolls_detail, current_score)).to eq(score_expected)
     end
   end
 
@@ -205,7 +207,8 @@ RSpec.describe TurnDefinitions do
       }
     end
 
-    let(:score_expected) { 16 }
+    let(:current_score) { 7 }
+    let(:score_expected) { 23 }
 
     it 'cans completed' do
       expect(definitions).not_to be_normal_completed(rolls_detail)
@@ -221,7 +224,7 @@ RSpec.describe TurnDefinitions do
       end
 
       it 'expected score' do
-        expect(definitions.score_pending_turn(rolls_detail, next_rolls_detail)).to eq(score_expected)
+        expect(definitions.score_pending_turn(rolls_detail, next_rolls_detail, current_score)).to eq(score_expected)
       end
     end
 

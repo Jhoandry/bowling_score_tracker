@@ -30,8 +30,8 @@ module TurnDefinitions
     normal_turn?(rolls_detail) && rolls_detail['shots'].size == 2
   end
 
-  def normal_score(rolls_detail)
-    rolls_detail['shots'].sum
+  def normal_score(rolls_detail, current_score)
+    current_score + rolls_detail['shots'].sum
   end
 
   def must_pending_score?(rolls_detail)
@@ -44,10 +44,10 @@ module TurnDefinitions
     normal_completed?(rolls_detail) || spare_turn?(rolls_detail)
   end
 
-  def score_pending_turn(last_rolls_detail, rolls_detail)
-    return MAX_PINS_KNOCKED_DOWN + rolls_detail['shots'].first if spare_turn?(last_rolls_detail)
+  def score_pending_turn(last_rolls_detail, rolls_detail, current_score)
+    return current_score + MAX_PINS_KNOCKED_DOWN + rolls_detail['shots'].first if spare_turn?(last_rolls_detail)
 
-    MAX_PINS_KNOCKED_DOWN + rolls_detail['shots'].sum if strike_turn?(last_rolls_detail)
+    current_score + MAX_PINS_KNOCKED_DOWN + rolls_detail['shots'].sum if strike_turn?(last_rolls_detail)
   end
 
   private

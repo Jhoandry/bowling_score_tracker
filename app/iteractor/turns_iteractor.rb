@@ -31,7 +31,9 @@ class TurnsIteractor
     return unless turn_pending_score.present? &&
                   can_score_pending_turn?(turn_pending_score.rolls_detail, turn.rolls_detail)
 
-    turn_pending_score.complete_turn(score_pending_turn(turn_pending_score.rolls_detail, turn.rolls_detail))
+    turn_pending_score.complete_turn(score_pending_turn(turn_pending_score.rolls_detail,
+                                                        turn.rolls_detail,
+                                                        current_score))
   end
 
   def define_status_current_turn
@@ -41,7 +43,7 @@ class TurnsIteractor
     return unless normal_completed || must_pending_score
 
     # normal turn with two shots
-    turn.complete_turn(normal_score(turn.rolls_detail)) if normal_completed
+    turn.complete_turn(normal_score(turn.rolls_detail, current_score)) if normal_completed
 
     # Striker or Spare turns must wait next turn to be scored
     turn.pending_scoring! if must_pending_score
@@ -59,5 +61,9 @@ class TurnsIteractor
 
   def init_turn_for_current_player
     Turn.create(game:, player:)
+  end
+
+  def current_score
+    player.turns.where(status: :completed).last&.score || 0
   end
 end
