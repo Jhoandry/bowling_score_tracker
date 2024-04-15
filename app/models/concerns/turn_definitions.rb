@@ -26,21 +26,41 @@ module TurnDefinitions
     roll_detail
   end
 
-  def can_completed?(rolls_detail)
-    normal_shot?(rolls_detail) && rolls_detail['shots'].size == 2
+  def normal_completed?(rolls_detail)
+    normal_turn?(rolls_detail) && rolls_detail['shots'].size == 2
+  end
+
+  def normal_score(rolls_detail)
+    rolls_detail['shots'].sum
   end
 
   def must_pending_score?(rolls_detail)
-    !normal_shot?(rolls_detail)
+    !normal_turn?(rolls_detail)
   end
 
-  def total_socore(rolls_detail)
-    rolls_detail['shots'].sum if normal_shot?(rolls_detail)
+  def can_score_pending_turn?(last_rolls_detail, rolls_detail)
+    return rolls_detail['shots'].size == 1 if spare_turn?(last_rolls_detail)
+
+    normal_completed?(rolls_detail) || spare_turn?(rolls_detail)
+  end
+
+  def score_pending_turn(last_rolls_detail, rolls_detail)
+    return MAX_PINS_KNOCKED_DOWN + rolls_detail['shots'].first if spare_turn?(last_rolls_detail)
+
+    MAX_PINS_KNOCKED_DOWN + rolls_detail['shots'].sum if strike_turn?(last_rolls_detail)
   end
 
   private
 
-  def normal_shot?(rolls_detail)
+  def normal_turn?(rolls_detail)
     rolls_detail['roll_type'] == 'normal'
+  end
+
+  def spare_turn?(rolls_detail)
+    rolls_detail['roll_type'] == 'spare'
+  end
+
+  def strike_turn?(rolls_detail)
+    rolls_detail['roll_type'] == 'strike'
   end
 end

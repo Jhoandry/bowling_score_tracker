@@ -131,7 +131,7 @@ RSpec.describe TurnDefinitions do
       let(:shots) { [3, 6] }
 
       it 'cans completed' do
-        expect(definitions).to be_can_completed(rolls_detail)
+        expect(definitions).to be_normal_completed(rolls_detail)
       end
 
       it 'not pending_scoring' do
@@ -139,7 +139,7 @@ RSpec.describe TurnDefinitions do
       end
 
       it 'expected score' do
-        expect(definitions.total_socore(rolls_detail)).to eq(shots.sum)
+        expect(definitions.normal_score(rolls_detail)).to eq(shots.sum)
       end
     end
 
@@ -147,7 +147,7 @@ RSpec.describe TurnDefinitions do
       let(:shots) { [5] }
 
       it 'cans completed' do
-        expect(definitions).not_to be_can_completed(rolls_detail)
+        expect(definitions).not_to be_normal_completed(rolls_detail)
       end
 
       it 'not pending_scoring' do
@@ -164,14 +164,29 @@ RSpec.describe TurnDefinitions do
       }
     end
 
-    context 'with normal two shots' do
-      it 'cans completed' do
-        expect(definitions).not_to be_can_completed(rolls_detail)
-      end
+    let(:next_rolls_detail) do
+      {
+        'roll_type' => 'normal',
+        'shots' => [5]
+      }
+    end
 
-      it 'not pending_scoring' do
-        expect(definitions).to be_must_pending_score(rolls_detail)
-      end
+    let(:score_expected) { 15 }
+
+    it 'cans completed' do
+      expect(definitions).not_to be_normal_completed(rolls_detail)
+    end
+
+    it 'not pending_scoring' do
+      expect(definitions).to be_must_pending_score(rolls_detail)
+    end
+
+    it 'can be score' do
+      expect(definitions).to be_can_score_pending_turn(rolls_detail, next_rolls_detail)
+    end
+
+    it 'expected score' do
+      expect(definitions.score_pending_turn(rolls_detail, next_rolls_detail)).to eq(score_expected)
     end
   end
 
@@ -183,13 +198,43 @@ RSpec.describe TurnDefinitions do
       }
     end
 
-    context 'with normal two shots' do
-      it 'cans completed' do
-        expect(definitions).not_to be_can_completed(rolls_detail)
+    let(:next_rolls_detail) do
+      {
+        'roll_type' => 'normal',
+        'shots' => [4, 2]
+      }
+    end
+
+    let(:score_expected) { 16 }
+
+    it 'cans completed' do
+      expect(definitions).not_to be_normal_completed(rolls_detail)
+    end
+
+    it 'not pending_scoring' do
+      expect(definitions).to be_must_pending_score(rolls_detail)
+    end
+
+    context 'when next turn has enough data to scoring' do
+      it 'can be score' do
+        expect(definitions).to be_can_score_pending_turn(rolls_detail, next_rolls_detail)
       end
 
-      it 'not pending_scoring' do
-        expect(definitions).to be_must_pending_score(rolls_detail)
+      it 'expected score' do
+        expect(definitions.score_pending_turn(rolls_detail, next_rolls_detail)).to eq(score_expected)
+      end
+    end
+
+    context 'when next turn does not have enough data to scoring' do
+      let(:next_rolls_detail) do
+        {
+          'roll_type' => 'normal',
+          'shots' => [4]
+        }
+      end
+
+      it 'cannot be score' do
+        expect(definitions).not_to be_can_score_pending_turn(rolls_detail, next_rolls_detail)
       end
     end
   end
