@@ -56,10 +56,12 @@ class TurnsIteractor
   end
 
   def start_next_player
-    game.turns.find_by_status(:pending).playing!
+    game.turns.find_by_status(:pending)&.playing!
   end
 
   def init_turn_for_current_player
+    return if game_completed?(player.turns)
+
     Turn.create(game:, player:)
   end
 
