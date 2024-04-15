@@ -4,7 +4,7 @@ class TurnsController < ActionController::API
 
   def create
     save_roll
-    handle_changes
+    handle_game_changes
     render json: GameSerializer.new(turn.game).attributes, status: :ok
   rescue StandardError => e
     render status: :unprocessable_entity, json: { message: e.message }
@@ -16,27 +16,41 @@ class TurnsController < ActionController::API
     turn.update_column(:rolls_detail, (turn.rolls_detail || {}).merge(build_roll_detail(turn, pins_knocked_down)))
   end
 
-  def handle_changes
-    can_completed = can_completed?(turn.rolls_detail)
+  def handle_game_changes
+    compleate_pending_scoring
+    define_status_current_turn
+  end
+
+  def compleate_pending_scoring
+    turn_pending_score = game.turns.find_by_status(:pending_scoring)
+
+    return unless turn_pending_score.present? &&
+                  can_score_pending_turn?(turn_pending_score.rolls_detail, turn.rolls_detail)
+
+    have_pending_score.complete_turn(score_pending_turn(turn_pending_score.rolls_detail, turn.rolls_detail))
+  end
+
+  def define_status_current_turn
+    normal_completed = normal_completed?(turn.rolls_detail)
     must_pending_score = must_pending_score?(turn.rolls_detail)
 
-    return unless can_completed || must_pending_score
+    return unless normal_completed || must_pending_score
 
     # normal turn with two shots
-    turn.complete_turn(total_socore(turn.rolls_detail)) if can_completed
+    turn.complete_turn(normal_score(turn.rolls_detail)) if normal_completed
+
     # Striker or Spare turns must wait next turn to be scored
     turn.pending_scoring! if must_pending_score
-
-    update_game
+    handle_next_player
   end
 
-  def update_game
+  def handle_next_player
     init_turn_for_current_player
-    start_player_with_next_turn
+    start_next_player
   end
 
-  def start_player_with_next_turn
-    game.turns.next_player.playing!
+  def start_next_player
+    game.turns.find_by_status(:pending).playing!
   end
 
   def init_turn_for_current_player
