@@ -1,6 +1,7 @@
 # Define all rules regarding score process
 module TurnDefinitions
   MAX_PINS_KNOCKED_DOWN = 10
+  MAX_TURNS = 10
 
   def roll_type(shots_count, total_pins_knocked_down)
     # :normal Not all the pins knocked down with two shots
@@ -16,7 +17,8 @@ module TurnDefinitions
     roll_detail = turn.rolls_detail || {}
     shots = roll_detail['shots'] || []
 
-    if pins_knocked_down > MAX_PINS_KNOCKED_DOWN || (shots.sum + pins_knocked_down) > MAX_PINS_KNOCKED_DOWN
+    if pins_knocked_down > MAX_PINS_KNOCKED_DOWN ||
+       (shots.sum + pins_knocked_down) > MAX_PINS_KNOCKED_DOWN || shots_completed?(shots)
       raise ArgumentError, 'Invalid number of pins knocked down'
     end
 
@@ -26,8 +28,12 @@ module TurnDefinitions
     roll_detail
   end
 
+  def game_completed?(turns)
+    turns.size == MAX_TURNS && turns.map(&:completed).size == MAX_TURNS
+  end
+
   def normal_completed?(rolls_detail)
-    normal_turn?(rolls_detail) && rolls_detail['shots'].size == 2
+    normal_turn?(rolls_detail) && shots_completed?(rolls_detail['shots'])
   end
 
   def normal_score(rolls_detail, current_score)
@@ -62,5 +68,9 @@ module TurnDefinitions
 
   def strike_turn?(rolls_detail)
     rolls_detail['roll_type'] == 'strike'
+  end
+
+  def shots_completed?(shots)
+    shots.size == 2
   end
 end

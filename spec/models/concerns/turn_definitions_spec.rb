@@ -32,6 +32,30 @@ RSpec.describe TurnDefinitions do
     end
   end
 
+  describe '#game_completed?' do
+    let(:game_completed) { definitions.game_completed?(turns) }
+
+    context 'when the player does not complete 10 turns' do
+      let(:turns) { [Turn.new(status: 'playing')] }
+
+      it do
+        expect(game_completed).to be_falsey
+      end
+    end
+
+    context 'when the player has completed 10 turns' do
+      let(:turns) { [] }
+
+      before do
+        10.times { turns << Turn.new(status: 'completed') }
+      end
+
+      it do
+        expect(game_completed).to be_truthy
+      end
+    end
+  end
+
   describe '#build_roll_detail' do
     let(:roll_detail) { definitions.build_roll_detail(turn, pins_knocked_down).deep_symbolize_keys }
     let(:game) { Game.create }
@@ -112,6 +136,18 @@ RSpec.describe TurnDefinitions do
 
     context 'when invalid pins_knocked_down' do
       let(:pins_knocked_down) { 11 }
+
+      it do
+        expect { roll_detail }.to raise_error(ArgumentError, 'Invalid number of pins knocked down')
+      end
+    end
+
+    context 'when send extra roll' do
+      let(:pins_knocked_down) { 1 }
+
+      before do
+        turn.update_column(:rolls_detail, { roll_type: :normal, shots: [pins_knocked_down, pins_knocked_down] })
+      end
 
       it do
         expect { roll_detail }.to raise_error(ArgumentError, 'Invalid number of pins knocked down')
