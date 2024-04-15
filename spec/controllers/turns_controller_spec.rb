@@ -110,5 +110,13 @@ RSpec.describe TurnsController do
         expect(create).to have_http_status(:unprocessable_entity)
       end
     end
+
+    context 'when invalid turn identifier' do
+      let(:score_body) { { turn_id: 0, pins_knocked_down: 0 } }
+
+      it do
+        expect(create).to have_http_status(:unprocessable_entity)
+      end
+    end
   end
 end
