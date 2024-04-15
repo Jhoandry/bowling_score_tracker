@@ -6,7 +6,6 @@
 #  rolls_detail :json
 #  score        :integer
 #  status       :string           default("pending"), not null
-#  turn_number  :integer          default(1), not null
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
 #  game_id      :bigint           not null
