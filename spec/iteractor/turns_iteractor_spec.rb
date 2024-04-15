@@ -32,7 +32,7 @@ RSpec.describe TurnsIteractor do
       it do
         iteractor.send(:compleate_pending_scoring)
         turn.reload
-        expect(turn.score).to eq(16)
+        expect(turn.score).to eq(16) # 16 because strike score is 10 pins + SUM of all rolls current turn
       end
 
       it do
@@ -52,7 +52,7 @@ RSpec.describe TurnsIteractor do
       it do
         iteractor.send(:compleate_pending_scoring)
         turn.reload
-        expect(turn.score).to eq(13)
+        expect(turn.score).to eq(13) # 13 because spare score is 10 pins + first of the current turn
       end
 
       it do
@@ -100,7 +100,7 @@ RSpec.describe TurnsIteractor do
       it do
         iteractor.send(:define_status_current_turn)
         second_turn.reload
-        expect(second_turn.score).to eq(12)
+        expect(second_turn.score).to eq(12) # 12 because normal score is SUM of all rolls
       end
     end
 
