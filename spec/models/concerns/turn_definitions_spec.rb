@@ -201,13 +201,7 @@ RSpec.describe TurnDefinitions do
       }
     end
 
-    let(:next_rolls_detail) do
-      {
-        'roll_type' => 'normal',
-        'shots' => [5]
-      }
-    end
-
+    let(:current_shots) { [5] }
     let(:current_score) { 7 }
     let(:score_expected) { 22 }
 
@@ -220,60 +214,56 @@ RSpec.describe TurnDefinitions do
     end
 
     it 'can be score' do
-      expect(definitions).to be_can_score_pending_turn(rolls_detail, next_rolls_detail)
+      expect(definitions).to be_can_score_pending_turn(rolls_detail, [], current_shots)
     end
 
     it 'expected score' do
-      expect(definitions.score_pending_turn(rolls_detail, next_rolls_detail, current_score)).to eq(score_expected)
+      expect(definitions.score_pending_turn(rolls_detail, current_shots, current_score)).to eq(score_expected)
     end
   end
 
   describe 'strike turn definitions' do
-    let(:rolls_detail) do
+    let(:first_strike) do
       {
         'roll_type' => 'strike',
         'shots' => [10]
       }
     end
 
-    let(:next_rolls_detail) do
+    let(:second_strike) do
       {
-        'roll_type' => 'normal',
-        'shots' => [4, 2]
+        'roll_type' => 'strike',
+        'shots' => [10]
       }
     end
 
+    let(:current_shots) { [4] }
     let(:current_score) { 7 }
-    let(:score_expected) { 23 }
+    let(:score_expected) { 31 } # current_score + first strike turn 10 + second strike 10 + first shot of current turn 4
 
     it 'cans completed' do
-      expect(definitions).not_to be_normal_completed(rolls_detail)
+      expect(definitions).not_to be_normal_completed(first_strike)
     end
 
     it 'not pending_scoring' do
-      expect(definitions).to be_must_pending_score(rolls_detail)
+      expect(definitions).to be_must_pending_score(first_strike)
     end
 
     context 'when next turn has enough data to scoring' do
       it 'can be score' do
-        expect(definitions).to be_can_score_pending_turn(rolls_detail, next_rolls_detail)
+        expect(definitions).to be_can_score_pending_turn(first_strike, [10], current_shots)
       end
 
       it 'expected score' do
-        expect(definitions.score_pending_turn(rolls_detail, next_rolls_detail, current_score)).to eq(score_expected)
+        expect(definitions.score_pending_turn(first_strike,
+                                              [10].concat(current_shots),
+                                              current_score)).to eq(score_expected)
       end
     end
 
     context 'when next turn does not have enough data to scoring' do
-      let(:next_rolls_detail) do
-        {
-          'roll_type' => 'normal',
-          'shots' => [4]
-        }
-      end
-
       it 'cannot be score' do
-        expect(definitions).not_to be_can_score_pending_turn(rolls_detail, next_rolls_detail)
+        expect(definitions).not_to be_can_score_pending_turn(first_strike, [], current_shots)
       end
     end
   end
