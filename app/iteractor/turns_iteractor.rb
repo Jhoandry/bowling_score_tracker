@@ -15,8 +15,7 @@ class TurnsIteractor
     save_current_roll
     compleate_pending_scoring
     define_status_current_turn
-
-    GameSerializer.new(turn.game).attributes
+    stash_game_changes_on_cache
   end
 
   private
@@ -58,6 +57,13 @@ class TurnsIteractor
     # Striker or Spare turns must wait next turn to be scored
     turn.pending_scoring! if must_pending_score
     handle_next_player
+  end
+
+  def stash_game_changes_on_cache
+    game_serializer = GameSerializer.new(turn.game).attributes
+    Rails.cache.write("GAME_#{game.id}", game_serializer)
+
+    game_serializer
   end
 
   def handle_next_player
