@@ -61,6 +61,38 @@ RSpec.describe TurnsIteractor do
         expect(turn.status).to eq('completed')
       end
     end
+
+    context 'when consecutive :strike turns' do
+      let(:third_turn) { Turn.create(player:, game:, status: :playing) }
+      let(:turn_identifier) { third_turn.id }
+      let(:pins_knocked_down) { 3 }
+
+      before do
+        third_turn.update_column(:rolls_detail, { roll_type: :normal, shots: [pins_knocked_down] })
+        second_turn.update_column(:rolls_detail, { roll_type: :strike, shots: [10] })
+        turn.update_column(:rolls_detail, { roll_type: :strike, shots: [10] })
+        second_turn.pending_scoring!
+        turn.pending_scoring!
+      end
+
+      it do
+        iteractor.send(:compleate_pending_scoring)
+        turn.reload
+        expect(turn.score).to eq(23) # 23 = strike score is 10 pins + two next shots (strike 10 + frist normal shot 3)
+      end
+
+      it do
+        iteractor.send(:compleate_pending_scoring)
+        turn.reload
+        expect(turn.status).to eq('completed')
+      end
+
+      it do
+        iteractor.send(:compleate_pending_scoring)
+        second_turn.reload
+        expect(second_turn.status).to eq('pending_scoring')
+      end
+    end
   end
 
   describe '#define_status_current_turn' do

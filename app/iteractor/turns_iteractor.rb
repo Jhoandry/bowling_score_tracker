@@ -26,14 +26,24 @@ class TurnsIteractor
   end
 
   def compleate_pending_scoring
-    turn_pending_score = game.turns.find_by_status(:pending_scoring)
+    turns_pending_scoring ||= game.turns.where(status: :pending_scoring)
 
-    return unless turn_pending_score.present? &&
-                  can_score_pending_turn?(turn_pending_score.rolls_detail, turn.rolls_detail)
+    return if turns_pending_scoring.empty?
 
-    turn_pending_score.complete_turn(score_pending_turn(turn_pending_score.rolls_detail,
-                                                        turn.rolls_detail,
-                                                        current_score))
+    pending_scoring = turns_pending_scoring.first
+    shots_pending_scoring = shots_pending_scoring(pending_scoring, turns_pending_scoring)
+    define_scoring_pending(pending_scoring, shots_pending_scoring)
+    compleate_pending_scoring unless pending_scoring.pending_scoring?
+  end
+
+  def define_scoring_pending(pending_scoring, shots_pending_scoring)
+    return unless can_score_pending_turn?(pending_scoring.rolls_detail,
+                                          shots_pending_scoring,
+                                          turn.rolls_detail['shots'])
+
+    pending_scoring.complete_turn(score_pending_turn(pending_scoring.rolls_detail,
+                                                     shots_pending_scoring.concat(turn.rolls_detail['shots']),
+                                                     current_score))
   end
 
   def define_status_current_turn
@@ -63,6 +73,12 @@ class TurnsIteractor
     return if game_completed?(player.turns)
 
     Turn.create(game:, player:)
+  end
+
+  def shots_pending_scoring(current_turn_scoring, turns_pending_scoring)
+    turns_pending_scoring.excluding(current_turn_scoring)
+                         .map { |turn| turn.rolls_detail['shots'] }
+                         .flatten
   end
 
   def current_score
