@@ -1,7 +1,7 @@
 # Define all rules regarding score process
 module TurnDefinitions
   MAX_PINS_KNOCKED_DOWN = 10
-  MAX_TURNS = 2
+  MAX_TURNS = 10
 
   def roll_type(shots)
     # :normal Not all the pins knocked down with two shots

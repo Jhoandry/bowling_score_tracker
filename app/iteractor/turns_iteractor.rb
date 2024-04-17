@@ -75,7 +75,12 @@ class TurnsIteractor
 
   def stash_game_changes_on_cache
     game_serializer = GameSerializer.new(turn.game).attributes
-    Rails.cache.write("GAME_#{game.id}", game_serializer)
+
+    if game.all_turns_completed?
+      Rails.cache.delete("GAME_#{game.id}", game_serializer)
+    else
+      Rails.cache.fetch("GAME_#{game.id}") { game_serializer }
+    end
 
     game_serializer
   end
