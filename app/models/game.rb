@@ -10,4 +10,9 @@
 class Game < ApplicationRecord
   has_many :turns, dependent: :destroy
   has_many :players, through: :turns
+
+
+  def all_turns_completed?
+    turns.all?(&:completed?)
+  end
 end
