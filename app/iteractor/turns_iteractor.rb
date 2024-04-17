@@ -12,6 +12,8 @@ class TurnsIteractor
   end
 
   def handle_game_changes
+    raise ArgumentError, 'Game is already finalized' if game.all_turns_completed?
+
     save_current_roll
     compleate_pending_scoring
     define_current_turn_status unless last_turn
@@ -27,7 +29,7 @@ class TurnsIteractor
   end
 
   def compleate_pending_scoring
-    turns_pending_scoring ||= game.turns.where(status: :pending_scoring)
+    turns_pending_scoring ||= player.turns.where(status: :pending_scoring)
 
     return if turns_pending_scoring.empty?
 
@@ -84,7 +86,7 @@ class TurnsIteractor
   end
 
   def start_next_player
-    game.turns.find_by_status(:pending)&.playing!
+    game.turns.where(status: :pending).order(id: :asc)&.first&.playing!
   end
 
   def init_turn_for_current_player
