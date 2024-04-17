@@ -267,4 +267,27 @@ RSpec.describe TurnDefinitions do
       end
     end
   end
+
+  describe '#last_turn' do
+    let(:last_turn) { definitions.last_turn?(turns, current_turn) }
+    let(:turns) { [] }
+    let(:current_turn) { Turn.new(status: 'playing') }
+
+    context 'when is the last-one' do
+      before do
+        9.times { turns << Turn.new(status: 'completed') }
+        turns << current_turn
+      end
+
+      it do
+        expect(last_turn).to be_truthy
+      end
+    end
+
+    context 'when is the frist-one' do
+      it do
+        expect(last_turn).to be_falsey
+      end
+    end
+  end
 end

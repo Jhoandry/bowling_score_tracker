@@ -56,6 +56,10 @@ module TurnDefinitions
     current_score + MAX_PINS_KNOCKED_DOWN + shots.sum if strike_turn?(last_rolls_detail)
   end
 
+  def last_turn?(turns, current_turn)
+    turns.size == MAX_TURNS && current_turn.playing?
+  end
+
   private
 
   def normal_turn?(rolls_detail)
