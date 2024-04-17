@@ -14,7 +14,8 @@ class TurnsIteractor
   def handle_game_changes
     save_current_roll
     compleate_pending_scoring
-    define_status_current_turn
+    define_current_turn_status unless last_turn
+    define_last_turn_status if last_turn
     stash_game_changes_on_cache
   end
 
@@ -46,17 +47,27 @@ class TurnsIteractor
                                                      current_score))
   end
 
-  def define_status_current_turn
+  def define_current_turn_status
     normal_completed = normal_completed?(turn.rolls_detail)
     must_pending_score = must_pending_score?(turn.rolls_detail)
 
     return unless normal_completed || must_pending_score
 
-    # normal turn with two shots
-    turn.complete_turn(normal_score(turn.rolls_detail, current_score)) if normal_completed
+    handle_normal_turn_completed if normal_completed
 
     # Striker or Spare turns must wait next turn to be scored
     turn.pending_scoring! if must_pending_score
+    handle_next_player
+  end
+
+  def define_last_turn_status
+    handle_normal_turn_completed if normal_completed?(turn.rolls_detail)
+
+    return unless can_score_last_special_turn?(last_turn, turn.rolls_detail)
+
+    turn.complete_turn(score_last_turn(turn.rolls_detail,
+                                       turn.rolls_detail['shots'],
+                                       current_score))
     handle_next_player
   end
 
@@ -80,6 +91,11 @@ class TurnsIteractor
     return if game_completed?(player.turns)
 
     Turn.create(game:, player:)
+  end
+
+  def handle_normal_turn_completed
+    # normal turn with two shots
+    turn.complete_turn(normal_score(turn.rolls_detail, current_score))
   end
 
   def shots_pending_scoring(current_turn_scoring, turns_pending_scoring)

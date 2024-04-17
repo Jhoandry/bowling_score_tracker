@@ -95,7 +95,7 @@ RSpec.describe TurnsIteractor do
     end
   end
 
-  describe '#define_status_current_turn' do
+  describe '#define_current_turn_status' do
     let(:turn_identifier) { turn.id }
     let(:pins_knocked_down) { 3 }
 
@@ -105,7 +105,7 @@ RSpec.describe TurnsIteractor do
       end
 
       it do
-        iteractor.send(:define_status_current_turn)
+        iteractor.send(:define_current_turn_status)
         turn.reload
         expect(turn.status).to eq('playing')
       end
@@ -124,13 +124,13 @@ RSpec.describe TurnsIteractor do
       end
 
       it do
-        iteractor.send(:define_status_current_turn)
+        iteractor.send(:define_current_turn_status)
         second_turn.reload
         expect(second_turn.status).to eq('completed')
       end
 
       it do
-        iteractor.send(:define_status_current_turn)
+        iteractor.send(:define_current_turn_status)
         second_turn.reload
         expect(second_turn.score).to eq(12) # 12 because normal score is SUM of all rolls
       end
@@ -142,13 +142,13 @@ RSpec.describe TurnsIteractor do
       end
 
       it do
-        iteractor.send(:define_status_current_turn)
+        iteractor.send(:define_current_turn_status)
         turn.reload
         expect(turn.status).to eq('pending_scoring')
       end
 
       it do
-        iteractor.send(:define_status_current_turn)
+        iteractor.send(:define_current_turn_status)
         turn.reload
         expect(turn.score).to be_nil
       end
@@ -160,13 +160,13 @@ RSpec.describe TurnsIteractor do
       end
 
       it do
-        iteractor.send(:define_status_current_turn)
+        iteractor.send(:define_current_turn_status)
         turn.reload
         expect(turn.status).to eq('pending_scoring')
       end
 
       it do
-        iteractor.send(:define_status_current_turn)
+        iteractor.send(:define_current_turn_status)
         turn.reload
         expect(turn.score).to be_nil
       end

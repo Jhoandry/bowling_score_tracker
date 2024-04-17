@@ -1,7 +1,7 @@
 # Define all rules regarding score process
 module TurnDefinitions
   MAX_PINS_KNOCKED_DOWN = 10
-  MAX_TURNS = 10
+  MAX_TURNS = 2
 
   def roll_type(shots)
     # :normal Not all the pins knocked down with two shots
@@ -57,6 +57,16 @@ module TurnDefinitions
 
   def last_turn?(turns, current_turn)
     turns.size == MAX_TURNS && current_turn.playing?
+  end
+
+  def can_score_last_special_turn?(last_turn, rolls_detail)
+    last_turn && rolls_detail['shots'].size == 3
+  end
+
+  def score_last_turn(rolls_detail, shots, current_score)
+    return score_pending_turn(rolls_detail, [shots.last], current_score) if spare_turn?(rolls_detail)
+
+    score_pending_turn(rolls_detail, shots.last(2), current_score)
   end
 
   private
