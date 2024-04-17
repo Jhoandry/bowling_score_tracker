@@ -3,27 +3,26 @@ module TurnDefinitions
   MAX_PINS_KNOCKED_DOWN = 10
   MAX_TURNS = 10
 
-  def roll_type(shots_count, total_pins_knocked_down)
+  def roll_type(shots)
     # :normal Not all the pins knocked down with two shots
     # :spare All the pins knocked down in two shots
     # :strike All the pins knocked down in one shot
-    return :strike if shots_count == 1 && total_pins_knocked_down == MAX_PINS_KNOCKED_DOWN
-    return :spare if shots_count > 1 && total_pins_knocked_down == MAX_PINS_KNOCKED_DOWN
+    return :strike if shots.first == MAX_PINS_KNOCKED_DOWN
+    return :spare if shots.sum >= MAX_PINS_KNOCKED_DOWN
 
     :normal
   end
 
-  def build_roll_detail(turn, pins_knocked_down)
+  def build_roll_detail(turn, pins_knocked_down, last_turn)
     roll_detail = turn.rolls_detail || {}
     shots = roll_detail['shots'] || []
 
-    if pins_knocked_down > MAX_PINS_KNOCKED_DOWN ||
-       (shots.sum + pins_knocked_down) > MAX_PINS_KNOCKED_DOWN || shots_completed?(shots)
+    if invalid_arguments?(last_turn, pins_knocked_down, shots, roll_detail)
       raise ArgumentError, 'Invalid number of pins knocked down'
     end
 
     roll_detail['shots'] = shots << pins_knocked_down
-    roll_detail['roll_type'] = roll_type(roll_detail['shots'].size, roll_detail['shots'].sum)
+    roll_detail['roll_type'] = roll_type(roll_detail['shots'])
 
     roll_detail
   end
@@ -76,5 +75,37 @@ module TurnDefinitions
 
   def shots_completed?(shots)
     shots.size == 2
+  end
+
+  def exceeds_max_pins?(pins_knocked_down)
+    pins_knocked_down > MAX_PINS_KNOCKED_DOWN
+  end
+
+  def invalid_arguments?(last_turn, pins_knocked_down, shots, roll_detail)
+    return invalid_pins_knocked_down?(pins_knocked_down, shots) unless last_turn
+
+    invalid_pins_for_last_turn?(last_turn, pins_knocked_down, shots, roll_detail)
+  end
+
+  def invalid_pins_knocked_down?(pins_knocked_down, shots)
+    exceeds_max_pins?(pins_knocked_down) || exceeds_max_pins?(shots.sum + pins_knocked_down) || shots_completed?(shots)
+  end
+
+  def invalid_pins_for_last_turn?(last_turn, pins_knocked_down, shots, rolls_detail)
+    return false unless last_turn || exceeds_max_pins?(pins_knocked_down) || shots.sum.zero?
+
+    invalid_last_turn_by_type?(pins_knocked_down, shots, rolls_detail)
+  end
+
+  def invalid_last_turn_by_type?(pins_knocked_down, shots, rolls_detail)
+    return invalid_pins_knocked_down?(pins_knocked_down, shots) if normal_turn?(rolls_detail)
+
+    shots_completed = shots.size == 3
+    shots_sum = shots.sum
+
+    # 20 assuming 10 with spare turn and the last MAX 10
+    return shots_completed || shots_sum == 20 if spare_turn?(rolls_detail)
+
+    shots_completed || shots_sum == 30 # 30 assuming three strike shots
   end
 end

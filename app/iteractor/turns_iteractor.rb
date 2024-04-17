@@ -21,7 +21,8 @@ class TurnsIteractor
   private
 
   def save_current_roll
-    turn.update_column(:rolls_detail, (turn.rolls_detail || {}).merge(build_roll_detail(turn, pins_knocked_down)))
+    turn.update_column(:rolls_detail,
+                       (turn.rolls_detail || {}).merge(build_roll_detail(turn, pins_knocked_down, last_turn)))
   end
 
   def compleate_pending_scoring
@@ -89,5 +90,9 @@ class TurnsIteractor
 
   def current_score
     player.turns.where(status: :completed).last&.score || 0
+  end
+
+  def last_turn
+    @last_turn ||= last_turn?(player.turns, turn)
   end
 end

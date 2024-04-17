@@ -2,11 +2,10 @@ RSpec.describe TurnDefinitions do
   let(:definitions) { Class.new { extend TurnDefinitions } }
 
   describe '#roll_type' do
-    let(:roll_type) { definitions.roll_type(shots_count, total_pins_knocked_down) }
+    let(:roll_type) { definitions.roll_type(shots) }
 
     context 'when :normal in two shots' do
-      let(:shots_count) { 2 }
-      let(:total_pins_knocked_down) { 7 }
+      let(:shots) { [2] }
 
       it do
         expect(roll_type).to eq(:normal)
@@ -14,8 +13,7 @@ RSpec.describe TurnDefinitions do
     end
 
     context 'when :spare' do
-      let(:shots_count) { 2 }
-      let(:total_pins_knocked_down) { 10 }
+      let(:shots) { [2, 8] }
 
       it do
         expect(roll_type).to eq(:spare)
@@ -23,8 +21,7 @@ RSpec.describe TurnDefinitions do
     end
 
     context 'when :strike' do
-      let(:shots_count) { 1 }
-      let(:total_pins_knocked_down) { 10 }
+      let(:shots) { [10] }
 
       it do
         expect(roll_type).to eq(:strike)
@@ -57,10 +54,12 @@ RSpec.describe TurnDefinitions do
   end
 
   describe '#build_roll_detail' do
-    let(:roll_detail) { definitions.build_roll_detail(turn, pins_knocked_down).deep_symbolize_keys }
+    let(:roll_detail) { definitions.build_roll_detail(turn, pins_knocked_down, last_turn).deep_symbolize_keys }
     let(:game) { Game.create }
     let(:player) { Player.create(name: 'test player name') }
     let!(:turn) { Turn.create(player:, game:) }
+    let(:last_turn) { false }
+
     let(:first_shot_roll_detail) do
       {
         roll_type: :normal,
@@ -151,6 +150,57 @@ RSpec.describe TurnDefinitions do
 
       it do
         expect { roll_detail }.to raise_error(ArgumentError, 'Invalid number of pins knocked down')
+      end
+    end
+
+    context 'when normal last turn' do
+      let(:pins_knocked_down) { 1 }
+      let(:last_turn) { true }
+
+      before do
+        turn.update_column(:rolls_detail, { roll_type: :normal, shots: [6, pins_knocked_down] })
+      end
+
+      it do
+        expect { roll_detail }.to raise_error(ArgumentError, 'Invalid number of pins knocked down')
+      end
+    end
+
+    context 'when spare last turn' do
+      let(:pins_knocked_down) { 1 }
+      let(:last_turn) { true }
+      let(:expected_roll_details) do
+        {
+          roll_type: :spare,
+          shots: [9, pins_knocked_down, pins_knocked_down]
+        }
+      end
+
+      before do
+        turn.update_column(:rolls_detail, { roll_type: :spare, shots: [9, pins_knocked_down] })
+      end
+
+      it do
+        expect(roll_detail).to include(expected_roll_details)
+      end
+    end
+
+    context 'when strike last turn' do
+      let(:pins_knocked_down) { 1 }
+      let(:last_turn) { true }
+      let(:expected_roll_details) do
+        {
+          roll_type: :strike,
+          shots: [10, pins_knocked_down, pins_knocked_down]
+        }
+      end
+
+      before do
+        turn.update_column(:rolls_detail, { roll_type: :strike, shots: [10, pins_knocked_down] })
+      end
+
+      it do
+        expect(roll_detail).to include(expected_roll_details)
       end
     end
   end
